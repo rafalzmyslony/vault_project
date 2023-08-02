@@ -42,7 +42,8 @@ wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
 apt -y update
 apt -y install vault
-cd /home/ubuntu && git clone https://github.com/rafalzmyslony/vault_project-todo_app
+mkdir /home/ubuntu/app
+cd /home/ubuntu/app && git clone https://github.com/rafalzmyslony/vault_project-todo_app
 python3 -m venv /home/ubuntu/app
 mv /home/ubuntu/Todo-App/* /home/ubuntu/app
 chown -R ubuntu:ubuntu app/
