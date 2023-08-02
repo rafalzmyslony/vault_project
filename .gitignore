@@ -1,0 +1,4 @@
+.terraform*
+terraform*
+my_description_details
+.env
