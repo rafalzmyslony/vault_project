@@ -57,7 +57,7 @@ ansible-vault encrypt_string --name 'postgresql_user_password' 'pass_to_db'
 ```
 ansible-playbook -i aws_ec2.yml playbook-change-pass-postgresql.yml --ask-vault-pass
 ```
-Go on http://<IP-todo-app-server>:8080
+Go on http:/[IP-todo-app-server]:8080
 
 
 ## What you can learn by analizing this project?
