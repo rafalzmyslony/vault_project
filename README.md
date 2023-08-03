@@ -1,0 +1,72 @@
+This project is for demontrating HCP Vault capabilites.
+HCP Vault will be configured to store password to database, which is necessary to make Todo app able to work.
+
+## How it works?
+- Simple todo app runs on dedicated EC2 instance with public IP, with attached IAM role. App is written in Python Flask in a way, which needs connect to HCP Vault and get password. Todo app is run as a service and it gets config from environmental variables provided by EnvironmentFile (env var for service, not accessible from shell env vars)
+
+- HCP Vault is installed on a separated EC2 instance, with public IP. It works as dev version, so it doesn't store secrets, policies etc. on the storage, but only in memory, so when we restart VM, then we loss data.
+
+- Database is provided by Postgresql. It runs in 3rd EC2 instance without public IP. But it has access to internet via NAT Gateway, so it can install software, but outside world cannot connect to his machine. Access to DB is only by bastion host which in this case, bastion host is todo app (best practice says that it must be dedicated host with only SSH access to private subnet). Todo server can connect to database, because DB has security group which only allows to connect from specific SG - here SG attached only to Todo server.
+
+
+## Projects consists of:
+- AWS for providing IAC
+- terraform to provision IAC for todo app (setting VPC, subnets, EC2 instances, NAT Gateway, routing table etc.) and to provide initial provisioning for EC2 instances. (A lot of data user scripts)
+- ansible to finish provisioning, e.g. setting VAULT_ADDR to application, restart service, changing password to database
+
+## How to configure and install
+(Project is for demonstration purposes)
+
+Fullfil variables files for terraform and ansible
+We want to run Todo App, but it must read password to DB from HCP Vault.
+
+### Part I - Initiation:
+#### 1. In the project:
+##### we want to create and provision infrastructure.
+```
+terraform apply
+ansible-playbook -i aws_ec2.yml playbook-postgresql.yml 
+```
+
+#### 2. On Vault EC2 instance
+##### configuring HCP vault, setting password to store in Vault. configuration is stored in the file provisioned by Terrafrom
+```
+vault login
+source vault_load_pass   # here we set password for storing in Vault (pass_to_db) 1*
+```
+
+#### 3. In the project:
+```
+ansible-playbook -i aws_ec2.yml playbook-todoapp.yml
+``` 
+
+##### Result: Still doesn't work because password to role todo_uzytkownik is diffrent than in HCP Vault
+
+### Part II - running succesfully Todo App
+#### 1. In the project:
+##### Use existing password (1*) or set new password to HCP Vault (via GUI or cli in vault server)
+##### You can access VAULT via HTTP and its public IP address 
+and port 8200
+```
+ansible-vault encrypt_string --name 'postgresql_user_password' 'pass_to_db'
+```
+##### It asks password to read this encrypted password (you can set even 12345)
+##### - Copy output to vars/credentials.yml
+
+##### - Run playbook which will change password in postgresql ( --ask-vault-pass is necessary to decrypt password - e.g. 12345)
+```
+ansible-playbook -i aws_ec2.yml playbook-change-pass-postgresql.yml --ask-vault-pass
+```
+Go on http://<IP-todo-app-server>:8080
+
+
+## What you can learn by analizing this project?
+- using NAT Gateway to provide internet connection to instances in private subnet
+- understand concepts of vaults (HCP Vault, Ansible Vault)
+- Linux skills - services, assiging user for specific user for security purposes
+- creating simple infrastructures in AWS via Terraform
+- more undestaning concept of REST API
+- simple python scripts
+- ansible - the most difficult part for me was understand dynamic inventory, to be able to move around various hosts and refering to them by various variables etc.
+## Road map
+- create connection between HCP Vault and Postgresql via dynamic secrets in HCP Vault
