@@ -29,7 +29,8 @@ ansible-playbook -i aws_ec2.yml playbook-postgresql.yml
 ```
 
 #### 2. On Vault EC2 instance
-##### configuring HCP vault, setting password to store in Vault. configuration is stored in the file provisioned by Terrafrom
+##### configuring HCP vault, setting password to store in Vault. configuration is stored in the file provisioned by Terrafrom 
+###### ( you can skip this step ("vault login") when in user-data  you add "export VAULT_TOKEN=root" (as token), and then command to execute: "source vault_load_pass")
 ```
 vault login
 source vault_load_pass   # here we set password for storing in Vault (pass_to_db) 1*
