@@ -60,7 +60,12 @@ ansible-playbook -i aws_ec2.yml playbook-change-pass-postgresql.yml --ask-vault-
 ```
 Go on http:/[IP-todo-app-server]:8080
 
-
+## Environmental variables for todo app that are already set in ec2_instances.tf
+- DB_HOST
+- DB_PORT
+- DB_NAME
+- DB_USER
+- DB_PASSWORD
 ## What you can learn by analizing this project?
 - using NAT Gateway to provide internet connection to instances in private subnet
 - understand concepts of vaults (HCP Vault, Ansible Vault)
